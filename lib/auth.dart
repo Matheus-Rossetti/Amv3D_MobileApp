@@ -1,49 +1,73 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:random_string/random_string.dart';
 
-// import 'web_view.dart';
-// import 'package:flutter/material.dart';
+Future<String> getToken(String email, String password,
+    [String? randomChallenge, String? accessCode]) async {
+  try {
+    // ? func may receive randomChallenge and accessCode from createUser
+    if (randomChallenge == null) {
+      int rdnChallengeLength = randomBetween(5, 15);
+      randomChallenge = randomAlphaNumeric(rdnChallengeLength);
 
-Future<String> getToken(String email, String password) async {
-  int rdn_challenge_length = randomBetween(5, 15);
-  String random_challenge = randomAlphaNumeric(rdn_challenge_length);
+      final accessCodeRequest = await http.post(
+        Uri.parse(
+            'http://20.201.114.134/auth/local/login?challenge=$randomChallenge'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
 
-  print('Challenge: $random_challenge');
+      print(accessCodeRequest.body);
+
+      accessCode = accessCodeRequest.body.toString().substring(57);
+    }
+
+    final tokenRequest =
+        await http.post(Uri.parse('http://20.201.114.134/auth/token'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'appId': 'spklwebapp',
+              'appSecret': 'spklwebapp',
+              'challenge': randomChallenge,
+              'accessCode': accessCode
+            }));
+
+    String token = (jsonDecode(tokenRequest.body)['token']);
+    String refreshToken = (jsonDecode(tokenRequest.body)['refreshToken']);
+
+    return token;
+  } catch (e) {
+    print(e);
+    return '';
+  }
+}
+
+Future<String> createUser(String email, String password, String name) async {
+  int rdnChallengeLength = randomBetween(5, 15);
+  String randomChallenge = randomAlphaNumeric(rdnChallengeLength);
 
   final accessCodeRequest = await http.post(
     Uri.parse(
-        'http://20.201.114.134/auth/local/login?challenge=$random_challenge'),
+        'http://20.201.114.134/auth/local/register?challenge=$randomChallenge'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'email': email, 'password': password}),
+    body: jsonEncode({'email': email, 'password': password, 'name': name}),
   );
 
-  String accessCode = accessCodeRequest.body.toString().substring(57);
+  String accessCode = accessCodeRequest.body.toString().substring(57, 99);
 
-  print(accessCode);
-
-  sleep(Duration(milliseconds: 500));
-
-  final tokenRequest =
-      await http.post(Uri.parse('http://20.201.114.134/auth/token'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'appId': 'spklwebapp',
-            'appSecret': 'spklwebapp',
-            'challenge': random_challenge,
-            'accessCode': accessCode
-          }));
-
-  String token = (jsonDecode(tokenRequest.body)['token']);
-  String refreshToken = (jsonDecode(tokenRequest.body)['refreshToken']);
-
-  print('Token: $token');
+  // ? login user after creation
+  String token = await getToken(email, password, randomChallenge, accessCode);
 
   return token;
 }
 
+// * testing the calls
 void main() {
-  getToken('ti@amvali.org.br', 'Amv@1001');
+  // getToken('ti@amvali.org.br', 'Amv@1001',);
+  createUser(
+    'teste@gmail.com',
+    'Matheus-16',
+    'teste',
+  );
 }

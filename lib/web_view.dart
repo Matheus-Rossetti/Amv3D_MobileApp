@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebView extends StatefulWidget {
-   const WebView({super.key, required this.token});
+  const WebView({super.key, required this.url});
 
-   final String token;
+  // final String token;
+  final String url;
 
   @override
   State<WebView> createState() => _WebViewState();
@@ -24,9 +25,9 @@ class _WebViewState extends State<WebView> {
       ..clearLocalStorage()
       ..clearCache()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(r'http://20.201.114.134/projects'), headers: {
-        'authorization': 'Bearer ${widget.token}',
-        'cookie': 'authn=${widget.token}'
+      ..loadRequest(Uri.parse(widget.url), headers: {
+        // 'authorization': 'Bearer ${widget.token}',
+        // 'cookie': 'authn=${widget.token}'
       });
   }
 
@@ -43,8 +44,6 @@ class _WebViewState extends State<WebView> {
                 overlays: []);
         return Column(
           children: [
-            SizedBox(height: 70),
-            Text('Token: ${widget.token}'),
             Container(
                 child: WebViewWidget(controller: controller),
                 width: double.infinity,

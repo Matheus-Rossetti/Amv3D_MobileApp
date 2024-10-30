@@ -18,12 +18,14 @@ class _NavBarState extends State<NavBar> {
           currentPageIndex = index;
         });
       },
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       height: 70,
       selectedIndex: currentPageIndex,
       destinations: const [
         NavigationDestination(
             icon: Icon(Icons.auto_awesome_mosaic), label: 'Projetos'),
+        NavigationDestination(
+            icon: Icon(Icons.folder_shared), label: 'Compartilhado'),
         NavigationDestination(icon: Icon(Icons.speaker_notes), label: 'Notas'),
         NavigationDestination(icon: Icon(Icons.person), label: 'Conta'),
       ],
