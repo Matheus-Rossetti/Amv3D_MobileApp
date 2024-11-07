@@ -195,8 +195,6 @@ class _LoginRegisterState extends State<LoginRegister> {
                                     backgroundColor: Colors.lightGreenAccent,
                                     duration: Duration(seconds: 4),
                                   ));
-
-                                  // ? -------------- experimento --------------
                                   Navigator.of(context).push(PageRouteBuilder(
                                       pageBuilder: (context, animation,
                                               secondaryAnimation) =>

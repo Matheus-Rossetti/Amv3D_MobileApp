@@ -1,11 +1,15 @@
 import 'dart:convert';
 
 import 'package:amvali3d/queries.dart';
-import 'package:amvali3d/web_view.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
 
+import 'config.dart';
 import 'navigation.dart';
+import 'project_card.dart';
+
+// TODO add a custom color to the card based on the city name
+// TODO Jaraguá, Massaranduba, Schoroeder, Corupa, Guaramirin, Barra Velha e São João do Itaperiú
 
 class ProjectsScreen extends StatefulWidget {
   final String token;
@@ -18,9 +22,9 @@ class ProjectsScreen extends StatefulWidget {
 
 class _ProjectsScreenState extends State<ProjectsScreen> {
   String userName = '';
-  int projectAmount = 3;
-  List<dynamic> projects = ['', ''];
+  int projectAmount = 0;
   dynamic projectsInfo;
+  dynamic projects;
 
   bool _isLoading = true;
 
@@ -44,11 +48,123 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       userName = projectsInfo['data']['activeUser']['name'];
     });
 
-    await Future.delayed(const Duration(seconds: 1));
+    if (projectsInfo['data']['activeUser']['projects']['items'][0]['name']
+        .contains('First Project')) {
+      await deleteFirstAutoProject(widget.token);
+    }
 
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {
       _isLoading = false;
     });
+  }
+
+  String _fetchProjectTitle(int index) {
+    String uploadedProjectName =
+        projectsInfo['data']['activeUser']['projects']['items'][index]['name'];
+    // * get the last word from the string splited by '-'
+    String initialName = uploadedProjectName.split('-').last;
+    // * replace underlines for spaces, if there's any
+    String finalProjectName = initialName.replaceAll('_', ' ');
+    // * split the name into a list of words, uppercase the first letter and lower the rest, then join the words together
+    finalProjectName = finalProjectName.split(' ').map((word) {
+      return word.isNotEmpty
+          ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+          : '';
+    }).join(' ');
+
+    return finalProjectName;
+  }
+
+  Color _fetchProjectColor(int index) {
+    Map<String, Color> cityColor = {
+      'JS': const Color(0xff86c226),
+      'MS': const Color(0xffe92d2c),
+      'SH': const Color(0xff00923f),
+      'CR': const Color(0xfff8c301),
+      'GM': const Color(0xff00adef),
+      'BV': const Color(0xff015198),
+      'SJ': const Color(0xfff8931f),
+    };
+    //* Jaraguá, Massaranduba, Schoroeder, Corupa, Guaramirin, Barra Velha e São João do Itaperiú
+
+    String uploadedName =
+        projectsInfo['data']['activeUser']['projects']['items'][index]['name'];
+
+    String city;
+    try {
+      city = uploadedName.split('-')[1].toUpperCase();
+    } catch (e) {
+      // * returns grey if the title is different than usual
+      return const Color(0xffdbdbdb);
+    }
+    try {
+      return cityColor[city]!;
+    }
+    // * returns grey if there's no city in the title
+    catch (e) {
+      return const Color(0xffdbdbdb);
+    }
+  }
+
+  String _fetchProjectCity(int index) {
+    Map<String, String> cityName = {
+      'JS': 'Jaraguá do Sul',
+      'MS': 'Massaranduba',
+      'SH': 'Schroeder',
+      'CR': 'Corupá',
+      'GM': 'Guaramirim',
+      'BV': 'Barra Velha',
+      'SJ': 'São João do Itaperiú',
+    };
+
+    String uploadedProjectName =
+        projectsInfo['data']['activeUser']['projects']['items'][index]['name'];
+
+    try {
+      String cityAcronym = uploadedProjectName.split('-')[1].toUpperCase();
+      return cityName[cityAcronym]!;
+      // * returns 'desconhecido' if the title is different than usual
+    } catch (e) {
+      return 'Amvali';
+    }
+  }
+
+  String _fetchProjectDate(int index) {
+    String uploadedDate = projectsInfo['data']['activeUser']['projects']
+        ['items'][index]['createdAt'];
+
+    DateTime datedDate = DateTime.parse(uploadedDate);
+
+    String formatedDate = DateFormat('dd/MM/yy').format(datedDate);
+
+    return formatedDate;
+  }
+
+  String _fetchProjectUrl(int index) {
+    String projectId =
+        projectsInfo['data']['activeUser']['projects']['items'][index]['id'];
+    String modelId = projectsInfo['data']['activeUser']['projects']['items']
+        [index]['models']['items'][0]['id'];
+
+    print(
+        'URL DO SERVIDOOOOOOOOOOOOOOORR: $serverIp/projects/$projectId/models/$modelId');
+
+    return '$serverIp/projects/$projectId/models/$modelId';
+  }
+
+  String _fetchCommentsAmount(int index) {
+    int commentsAmount = projectsInfo['data']['activeUser']['projects']['items']
+        [index]['models']['items'][0]['commentThreads']['totalCount'];
+
+    return commentsAmount.toString();
+  }
+
+  String _fetchProjectImage(int index) {
+    String imageUrl = projectsInfo['data']['activeUser']['projects']['items']
+        [index]['models']['items'][0]['previewUrl'];
+
+    return imageUrl;
   }
 
   @override
@@ -57,13 +173,13 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         backgroundColor: Colors.white,
         body: RefreshIndicator(
           backgroundColor: Colors.white,
-          color: Color(0xff088240),
+          color: const Color(0xff088240),
           onRefresh: _fetchProjectData,
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
                   centerTitle: false,
-                  leading: SizedBox(),
+                  leading: const SizedBox(),
                   backgroundColor: Colors.white,
                   title: Text(userName)),
               SliverList(
@@ -73,241 +189,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                         child: _isLoading == true
                             ? const ProjectContainerShimmer()
                             : ProjectContainer(
-                                projectsInfo: projectsInfo, index: index)),
+                                token: widget.token,
+                                title: _fetchProjectTitle(index),
+                                color: _fetchProjectColor(index),
+                                city: _fetchProjectCity(index),
+                                date: _fetchProjectDate(index),
+                                imageUrl: _fetchProjectImage(index),
+                                url: _fetchProjectUrl(index),
+                                commentsAmount: _fetchCommentsAmount(index))),
                     childCount: projectAmount),
               )
             ],
           ),
         ),
         bottomNavigationBar: const NavBar());
-  }
-}
-
-class ProjectContainer extends StatelessWidget {
-  const ProjectContainer({
-    super.key,
-    required this.projectsInfo,
-    required this.index,
-  });
-
-  final dynamic projectsInfo;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 430,
-      width: 100,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          gradient: const LinearGradient(
-            colors: [Color(0xff088240), Color(0xff7eae2b)],
-            stops: [0.25, 0.75],
-            begin: Alignment(1.0, -2.0),
-            end: Alignment.bottomLeft,
-          )),
-      // color: const Color(0xff088240)),
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Padding(
-                  // *very important!
-                  padding: const EdgeInsets.only(left: 2),
-                  // *very important!
-                  child: Text(
-                    projectsInfo['data']['activeUser']['projects']['items']
-                        [index]['name'],
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            Container(
-              height: 220,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white,
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  String projectId = projectsInfo['data']['activeUser']
-                      ['projects']['items'][index]['id'];
-                  String modelId = projectsInfo['data']['activeUser']
-                      ['projects']['items'][index]['models']['items'][0]['id'];
-
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => WebView(
-                              url:
-                                  'http://20.201.114.134/projects/$projectId/models/$modelId')));
-                },
-                child: Image.network(
-                  projectsInfo['data']['activeUser']['projects']['items'][index]
-                      ['models']['items'][0]['previewUrl'],
-                  scale: 1.5,
-                  fit: BoxFit.none,
-                  alignment: Alignment.bottomCenter,
-                  // fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Dono: xxxxxxx'),
-                Column(
-                  children: [
-                    Text('Upload: xx/xx/xx'),
-                    Text('Última modificação: xx/xx/xx')
-                  ],
-                )
-              ],
-            ),
-
-            // const SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 200,
-                  height: 45,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4)),
-                  child: TextButton(
-                      // * action button
-                      onPressed: () {},
-                      child: Text(
-                        "Compartilhar",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
-                ),
-                Container(
-                  width: 70,
-                  height: 45,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4)),
-                  child: TextButton(
-                      // * action button
-                      onPressed: () {},
-                      child: Row(
-                        children: [
-                          Icon(Icons.message, color: Colors.black),
-                          Text(projectsInfo['data']['activeUser']['projects']
-                                      ['items'][index]['models']['items'][0]
-                                  ['commentThreads']['totalCount']
-                              .toString())
-                        ],
-                      )),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ProjectContainerShimmer extends StatelessWidget {
-  const ProjectContainerShimmer({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        height: 430,
-        width: 100,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30), color: Colors.grey),
-        child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                      // *very important!
-                      padding: const EdgeInsets.only(left: 2),
-                      // *very important!
-                      child: Shimmer.fromColors(
-                          baseColor: Colors.black38,
-                          highlightColor: Colors.black12,
-                          child: Container(
-                            height: 13,
-                            width: 200,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(50)),
-                          )),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                Shimmer.fromColors(
-                  baseColor: Colors.black38,
-                  highlightColor: Colors.black12,
-                  child: Container(
-                    height: 220,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(''),
-                    Column(
-                      children: [Text(''), Text('')],
-                    )
-                  ],
-                ),
-
-                // const SizedBox(height: 50),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Shimmer.fromColors(
-                        baseColor: Colors.black38,
-                        highlightColor: Colors.black12,
-                        child: Container(
-                          width: 200,
-                          height: 45,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4)),
-                        ),
-                      ),
-                      Shimmer.fromColors(
-                        baseColor: Colors.black38,
-                        highlightColor: Colors.black12,
-                        child: Container(
-                          width: 60,
-                          height: 45,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4)),
-                        ),
-                      ),
-                    ])
-              ],
-            )));
   }
 }

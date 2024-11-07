@@ -45,6 +45,7 @@ dependencies:
   shared_preferences: ^2.3.2
   hexcolor: ^3.0.1
   shimmer: ^3.0.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -85,26 +86,26 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-  - family: Ezra
-    fonts:
-      - asset: assets/fonts/Ezra-Black.otf
-      - asset: assets/fonts/Ezra-Bold.otf
-      - asset: assets/fonts/Ezra-Light.otf
-      - asset: assets/fonts/Ezra-Medium.otf
-      - asset: assets/fonts/Ezra-SemiBold.otf
-  - family: Ciento
-    fonts:
-      - asset: assets/fonts/Ciento-Black.ttf
-      - asset: assets/fonts/Ciento-Bold.ttf
-      - asset: assets/fonts/Ciento-Book.ttf
-      - asset: assets/fonts/Ciento-Light.ttf
-      - asset: assets/fonts/Ciento-Regular.ttf
-  - family: Helvetica
-    fonts:
-      - asset: assets/fonts/HelveticaNeueLTPro-Lt.otf
-      - asset: assets/fonts/HelveticaNeueLTPro-LtEx.otf
-      - asset: assets/fonts/HelveticaNeueLTPro-MdEx.otf
-      - asset: assets/fonts/HelveticaNeueLTPro-Th.otf
+    - family: Ezra
+      fonts:
+        - asset: assets/fonts/Ezra-Black.otf
+        - asset: assets/fonts/Ezra-Bold.otf
+        - asset: assets/fonts/Ezra-Light.otf
+        - asset: assets/fonts/Ezra-Medium.otf
+        - asset: assets/fonts/Ezra-SemiBold.otf
+    - family: Ciento
+      fonts:
+        - asset: assets/fonts/Ciento-Black.ttf
+        - asset: assets/fonts/Ciento-Bold.ttf
+        - asset: assets/fonts/Ciento-Book.ttf
+        - asset: assets/fonts/Ciento-Light.ttf
+        - asset: assets/fonts/Ciento-Regular.ttf
+    - family: Helvetica
+      fonts:
+        - asset: assets/fonts/HelveticaNeueLTPro-Lt.otf
+        - asset: assets/fonts/HelveticaNeueLTPro-LtEx.otf
+        - asset: assets/fonts/HelveticaNeueLTPro-MdEx.otf
+        - asset: assets/fonts/HelveticaNeueLTPro-Th.otf
 
 flutter_native_splash:
   # This package generates native code to customize Flutter's default white native splash screen
