@@ -1,6 +1,7 @@
-import 'package:amvali3d/login_register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+
+import 'notes_screen.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: LoginRegister(),
+      home: NotesScreen(token: '06f7b155ccd185afb0fa568197dfc591e45e559d0e'),
+      // home: LoginRegister(),
       debugShowCheckedModeBanner: false,
       title: 'Amvali 3D Viewer',
     );

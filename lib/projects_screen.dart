@@ -31,10 +31,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchProjectData();
+    _fetchProjectScreenData();
   }
 
-  Future<void> _fetchProjectData() async {
+  Future<void> _fetchProjectScreenData() async {
     setState(() {
       _isLoading = true;
     });
@@ -51,6 +51,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     if (projectsInfo['data']['activeUser']['projects']['items'][0]['name']
         .contains('First Project')) {
       await deleteFirstAutoProject(widget.token);
+      await _fetchProjectScreenData();
     }
 
     await Future.delayed(const Duration(seconds: 1));
@@ -115,7 +116,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       'CR': 'Corupá',
       'GM': 'Guaramirim',
       'BV': 'Barra Velha',
-      'SJ': 'São João do Itaperiú',
+      'SJ': 'São João',
     };
 
     String uploadedProjectName =
@@ -147,9 +148,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     String modelId = projectsInfo['data']['activeUser']['projects']['items']
         [index]['models']['items'][0]['id'];
 
-    print(
-        'URL DO SERVIDOOOOOOOOOOOOOOORR: $serverIp/projects/$projectId/models/$modelId');
-
     return '$serverIp/projects/$projectId/models/$modelId';
   }
 
@@ -174,7 +172,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         body: RefreshIndicator(
           backgroundColor: Colors.white,
           color: const Color(0xff088240),
-          onRefresh: _fetchProjectData,
+          onRefresh: _fetchProjectScreenData,
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -205,3 +203,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         bottomNavigationBar: const NavBar());
   }
 }
+
+
+

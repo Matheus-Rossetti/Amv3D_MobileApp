@@ -152,6 +152,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  gap:
+    dependency: "direct main"
+    description:
+      name: gap
+      sha256: f19387d4e32f849394758b91377f9153a1b41d79513ef7668c088c77dbc6955d
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -469,6 +477,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
+  timelines_plus:
+    dependency: "direct main"
+    description:
+      name: timelines_plus
+      sha256: ad0d97a0ee21942ee749c603b117794eb97cc6788f0cadc7d76cf1bbb2c26fca
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:

@@ -20,7 +20,7 @@ class _NavBarState extends State<NavBar> {
       },
       backgroundColor: Colors.white,
       height: 70,
-      selectedIndex: currentPageIndex,
+      // selectedIndex: currentPageIndex,
       destinations: const [
         NavigationDestination(
             icon: Icon(Icons.auto_awesome_mosaic), label: 'Projetos'),
