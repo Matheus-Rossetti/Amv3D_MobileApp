@@ -5,11 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'config.dart';
-import 'navigation.dart';
 import 'project_card.dart';
-
-// TODO add a custom color to the card based on the city name
-// TODO Jaraguá, Massaranduba, Schoroeder, Corupa, Guaramirin, Barra Velha e São João do Itaperiú
 
 class ProjectsScreen extends StatefulWidget {
   final String token;
@@ -54,7 +50,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       await _fetchProjectScreenData();
     }
 
-    await Future.delayed(const Duration(seconds: 1));
     setState(() {
       _isLoading = false;
     });
@@ -167,42 +162,36 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        body: RefreshIndicator(
-          backgroundColor: Colors.white,
-          color: const Color(0xff088240),
-          onRefresh: _fetchProjectScreenData,
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                  centerTitle: false,
-                  leading: const SizedBox(),
-                  backgroundColor: Colors.white,
-                  title: Text(userName)),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                    (builder, index) => Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 7.5, 15, 7.5),
-                        child: _isLoading == true
-                            ? const ProjectContainerShimmer()
-                            : ProjectContainer(
-                                token: widget.token,
-                                title: _fetchProjectTitle(index),
-                                color: _fetchProjectColor(index),
-                                city: _fetchProjectCity(index),
-                                date: _fetchProjectDate(index),
-                                imageUrl: _fetchProjectImage(index),
-                                url: _fetchProjectUrl(index),
-                                commentsAmount: _fetchCommentsAmount(index))),
-                    childCount: projectAmount),
-              )
-            ],
-          ),
-        ),
-        bottomNavigationBar: const NavBar());
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: const Color(0xff088240),
+      onRefresh: _fetchProjectScreenData,
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+              centerTitle: false,
+              leading: const SizedBox(),
+              backgroundColor: Colors.white,
+              title: Text(userName)),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                (builder, index) => Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 7.5, 15, 7.5),
+                    child: _isLoading == true
+                        ? const ProjectContainerShimmer()
+                        : ProjectContainer(
+                            token: widget.token,
+                            title: _fetchProjectTitle(index),
+                            color: _fetchProjectColor(index),
+                            city: _fetchProjectCity(index),
+                            date: _fetchProjectDate(index),
+                            imageUrl: _fetchProjectImage(index),
+                            url: _fetchProjectUrl(index),
+                            commentsAmount: _fetchCommentsAmount(index))),
+                childCount: projectAmount),
+          )
+        ],
+      ),
+    );
   }
 }
-
-
-

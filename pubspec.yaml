@@ -47,7 +47,7 @@ dependencies:
   shimmer: ^3.0.0
   intl: ^0.17.0
   gap: ^3.0.1
-  timelines_plus: ^1.0.3
+  timeline_tile: ^2.0.0
 
 dev_dependencies:
   flutter_test:

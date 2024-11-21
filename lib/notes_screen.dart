@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:amvali3d/navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:timelines_plus/timelines_plus.dart';
+import 'package:gap/gap.dart';
+import 'package:timeline_tile/timeline_tile.dart';
 
 import 'queries.dart';
 
@@ -102,60 +102,65 @@ class _NotesScreenState extends State<NotesScreen> {
     String uploadedName =
         _notesInfo['data']['activeUser']['projects']['items'][index]['name'];
 
-    final String city;
     try {
-      city = uploadedName.split('-')[1].toUpperCase();
+      final String city = uploadedName.split('-')[1].toUpperCase();
+      return cityColor[city]!;
     } catch (e) {
       // * returns grey if the title is different than usual
       return const Color(0xffdbdbdb);
     }
+  }
 
-    return cityColor[city]!;
+  int _fetchCommentsAmmount(int index) {
+    int commentAmmount = _notesInfo['data']['activeUser']['projects']['items']
+        [index]['commentThreads']['totalCount'];
+
+    // * limits the ammount to 4 inside the card
+    return commentAmmount > 4 ? 4 : commentAmmount;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: RefreshIndicator(
-          onRefresh: _fetchNotesScreenData,
-          child: NotesCard(
-              title: _fetchProjectCity(0),
-              city: _fetchProjectCity(0),
-              color: _fetchProjectColor(0))
-
-          // CustomScrollView(slivers: [
-          //   const SliverAppBar(
-          //       centerTitle: false,
-          //       leading: SizedBox(),
-          //       backgroundColor: Colors.white,
-          //       title: Text('Notas')),
-          //   SliverList(
-          //       delegate: SliverChildBuilderDelegate(
-          //           (builder, index) => NotesCard(
-          //                 title: _fetchNotesProjectName(index),
-          //                 city: _fetchProjectCity(index),
-          //                 color: _fetchProjectColor(index),
-          //               ),
-          //           childCount: _projectsAmmount))
-          // ]),
-          ),
-      bottomNavigationBar: const NavBar(),
+    return RefreshIndicator(
+      onRefresh: _fetchNotesScreenData,
+      child: CustomScrollView(slivers: [
+        const SliverAppBar(
+            centerTitle: false,
+            leading: SizedBox(),
+            backgroundColor: Colors.white,
+            title: Text('Notas')),
+        SliverList(
+            delegate: SliverChildBuilderDelegate(
+                (builder, index) => NotesCard(
+                      commentsAmmount: _fetchCommentsAmmount(index),
+                      title: _fetchNotesProjectName(index),
+                      city: _fetchProjectCity(index),
+                      color: _fetchProjectColor(index),
+                      notesInfo: _notesInfo,
+                      projectIndex: index,
+                    ),
+                childCount: _projectsAmmount))
+      ]),
     );
   }
 }
 
 class NotesCard extends StatelessWidget {
-  const NotesCard({
-    super.key,
-    required this.title,
-    required this.city,
-    required this.color,
-  });
+  const NotesCard(
+      {super.key,
+      required this.commentsAmmount,
+      required this.title,
+      required this.city,
+      required this.color,
+      required this.notesInfo,
+      required this.projectIndex});
 
+  final int commentsAmmount;
   final String title;
   final String city;
   final Color color;
+  final dynamic notesInfo;
+  final int projectIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -166,69 +171,159 @@ class NotesCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.black.withOpacity(0.5),
+            color: color,
             width: 2,
             style: BorderStyle.solid,
           ),
+          color: color.withOpacity(0.1),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.only(left: 5, right: 5),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Text(
-                      city,
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 10),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white,
+                        fontSize: 24,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.only(left: 5, right: 5),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        city,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-            Text('inicio da timeline'),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Container(
-                color: Colors.brown,
-                height: 500,
-                width: 300,
-                child: Timeline.tileBuilder(
-                  builder: TimelineTileBuilder.connectedFromStyle(
-                    nodePositionBuilder: (context, index) => 0,
-                    // indicatorStyle: DotIndicator(color: ),
-                    contentsAlign: ContentsAlign.basic,
-                    contentsBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Text('Timeline Event $index'),
-                    ),
-                    itemCount: 5,
-                  ),
+            const Gap(12),
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(15)),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: List.generate(commentsAmmount, (index) {
+                    return TimelineTile(
+                      isFirst: index == 0,
+                      isLast: (index + 1) == commentsAmmount,
+                      beforeLineStyle:
+                          const LineStyle(thickness: 1, color: Colors.black),
+                      indicatorStyle: IndicatorStyle(
+                          width: 8, color: color, indicatorXY: 0.15),
+                      endChild: Node(
+                          index: index,
+                          notesInfo: notesInfo,
+                          projectIndex: projectIndex),
+                    );
+                  }),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+//TODO Move '_fetch' functions to a separate file
+
+class Node extends StatelessWidget {
+  const Node(
+      {super.key,
+      required this.index,
+      required this.notesInfo,
+      required this.projectIndex});
+
+  final int index;
+  final dynamic notesInfo;
+  final int projectIndex;
+
+  _fetchCommentOwner(int index) {
+    return notesInfo['data']['activeUser']['projects']['items'][projectIndex]
+        ['commentThreads']['items'][index]['author']['name'];
+  }
+
+  _fetchComment(int index) {
+    return notesInfo['data']['activeUser']['projects']['items'][projectIndex]
+        ['commentThreads']['items'][index]['rawText'];
+  }
+
+  int _fetchDaysAgo(int index) {
+    final String rawDate = notesInfo['data']['activeUser']['projects']['items']
+        [projectIndex]['commentThreads']['items'][index]['createdAt'];
+    final DateTime commentDate = DateTime.parse(rawDate);
+    final Duration difference = DateTime.now().difference(commentDate);
+    return difference.inDays;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(_fetchCommentOwner(index),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20)),
+              const Gap(10),
+              CircleAvatar(
+                radius: 3,
+                backgroundColor: Colors.black.withOpacity(0.5),
+              ),
+              const Gap(10),
+              Text('${_fetchDaysAgo(index)} dias atrás',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black.withOpacity(0.5)))
+            ],
+          ),
+          const Gap(5),
+          Align(
+            alignment: Alignment.topLeft,
+            child: IntrinsicWidth(
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                        color: Colors.black.withOpacity(0.2), width: 1.5),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Text(_fetchComment(index)),
+                          // Gap(5),
+                          // Text('+ ')
+                        ],
+                      ),
+                    )),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
