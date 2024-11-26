@@ -1,3 +1,4 @@
+import 'package:amvali3d/navigation.dart';
 import 'package:amvali3d/projects_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -183,22 +184,10 @@ class _LoginRegisterState extends State<LoginRegister> {
                                     : await createUser(_email.text,
                                         _password.text, _name.text);
                                 if (token != '') {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text(
-                                      'Fala fi',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                    backgroundColor: Colors.lightGreenAccent,
-                                    duration: Duration(seconds: 4),
-                                  ));
                                   Navigator.of(context).push(PageRouteBuilder(
                                       pageBuilder: (context, animation,
                                               secondaryAnimation) =>
-                                          ProjectsScreen(token: token),
+                                          Navigation(token: token),
                                       transitionsBuilder: (context, animation,
                                           secondaryAnimation, child) {
                                         const begin = Offset(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:amvali3d/single_note_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:timeline_tile/timeline_tile.dart';
@@ -116,7 +117,7 @@ class _NotesScreenState extends State<NotesScreen> {
         [index]['commentThreads']['totalCount'];
 
     // * limits the ammount to 4 inside the card
-    return commentAmmount > 4 ? 4 : commentAmmount;
+    return commentAmmount;
   }
 
   @override
@@ -164,80 +165,98 @@ class NotesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: color,
-            width: 2,
-            style: BorderStyle.solid,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            // TODO Substitute for Hero
+            PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) {
+              return SingleNoteScreen(
+                  title: title,
+                  city: city,
+                  color: color,
+                  commentsAmmount: commentsAmmount,
+                  notesInfo: notesInfo,
+                  projectIndex: projectIndex);
+            }, transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+              var fadeAnimation =
+                  Tween(begin: 0.0, end: 1.0).animate(animation);
+              return FadeTransition(opacity: fadeAnimation, child: child);
+            }));
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: color,
+              width: 2,
+              style: BorderStyle.solid,
+            ),
+            color: color.withOpacity(0.1),
           ),
-          color: color.withOpacity(0.1),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 4, left: 10),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.only(left: 5, right: 5),
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: Text(
-                        city,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 10),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white,
+                          fontSize: 24,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.only(left: 5, right: 5),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: Text(
+                          city,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const Gap(12),
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(15)),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: List.generate(commentsAmmount, (index) {
-                    return TimelineTile(
-                      isFirst: index == 0,
-                      isLast: (index + 1) == commentsAmmount,
-                      beforeLineStyle:
-                          const LineStyle(thickness: 1, color: Colors.black),
-                      indicatorStyle: IndicatorStyle(
-                          width: 8, color: color, indicatorXY: 0.15),
-                      endChild: Node(
+              const Gap(12),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: List.generate(
+                        (commentsAmmount > 4 ? 4 : commentsAmmount), (index) {
+                      return Node(
+                          commentsAmmount: commentsAmmount,
+                          color: color,
                           index: index,
                           notesInfo: notesInfo,
-                          projectIndex: projectIndex),
-                    );
-                  }),
+                          projectIndex: projectIndex);
+                    }),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -249,10 +268,14 @@ class NotesCard extends StatelessWidget {
 class Node extends StatelessWidget {
   const Node(
       {super.key,
+      required this.commentsAmmount,
+      required this.color,
       required this.index,
       required this.notesInfo,
       required this.projectIndex});
 
+  final int commentsAmmount;
+  final Color color;
   final int index;
   final dynamic notesInfo;
   final int projectIndex;
@@ -277,54 +300,60 @@ class Node extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15),
-      child: Column(
-        children: [
-          Row(
+    return TimelineTile(
+        isFirst: index == 0,
+        isLast: (index + 1) == commentsAmmount,
+        beforeLineStyle: const LineStyle(thickness: 1, color: Colors.black),
+        indicatorStyle:
+            IndicatorStyle(width: 8, color: color, indicatorXY: 0.15),
+        endChild: Padding(
+          padding: const EdgeInsets.only(left: 15),
+          child: Column(
             children: [
-              Text(_fetchCommentOwner(index),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 20)),
-              const Gap(10),
-              CircleAvatar(
-                radius: 3,
-                backgroundColor: Colors.black.withOpacity(0.5),
+              Row(
+                children: [
+                  Text(_fetchCommentOwner(index),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20)),
+                  const Gap(10),
+                  CircleAvatar(
+                    radius: 3,
+                    backgroundColor: Colors.black.withOpacity(0.5),
+                  ),
+                  const Gap(10),
+                  Text('${_fetchDaysAgo(index)} dias atrás',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black.withOpacity(0.5)))
+                ],
               ),
-              const Gap(10),
-              Text('${_fetchDaysAgo(index)} dias atrás',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black.withOpacity(0.5)))
+              const Gap(5),
+              Align(
+                alignment: Alignment.topLeft,
+                child: IntrinsicWidth(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: Colors.black.withOpacity(0.2), width: 1.5),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              _fetchComment(index),
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          )),
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
-          const Gap(5),
-          Align(
-            alignment: Alignment.topLeft,
-            child: IntrinsicWidth(
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                        color: Colors.black.withOpacity(0.2), width: 1.5),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Text(_fetchComment(index)),
-                          // Gap(5),
-                          // Text('+ ')
-                        ],
-                      ),
-                    )),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+        ));
   }
 }

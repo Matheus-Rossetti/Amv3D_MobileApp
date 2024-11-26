@@ -25,7 +25,7 @@ Future<String> getForNotesScreen(String token) async {
         "cookie": "authn=$token"
       },
       body:
-          '{"query": "query Query { activeUser { projects { totalCount items { name id commentThreads { totalCount items { author { name } createdAt rawText } } } } } }"}');
+          '{"query": "query Query { activeUser { projects { totalCount items { name id commentThreads { totalCount items { id createdAt rawText author { name } replies { totalCount items{ rawText author{ name } } } } } } } } }"}');
 
   // print(JsonEncoder.withIndent('  ').convert(jsonDecode(request.body)));
 
