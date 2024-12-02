@@ -37,6 +37,7 @@ class _WebViewState extends State<WebView> {
           },
         ),
       )
+      ..enableZoom(false)
       ..loadRequest(Uri.parse(widget.url), headers: {
         // 'authorization': 'Bearer ${widget.token}',
         'cookie': 'authn=${widget.token}'
@@ -52,7 +53,18 @@ class _WebViewState extends State<WebView> {
               overlays: SystemUiOverlay.values)
           : SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
               overlays: []);
-      return WebViewWidget(controller: controller);
+      return Stack(
+        children: [
+          WebViewWidget(
+            controller: controller,
+          ),
+          Container(
+            width: double.infinity,
+            height: 50,
+            color: Colors.grey[50],
+          ),
+        ],
+      );
     });
   }
 }

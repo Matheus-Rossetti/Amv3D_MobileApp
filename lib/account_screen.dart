@@ -1,3 +1,4 @@
+import 'package:amvali3d/login_register.dart';
 import 'package:flutter/material.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -7,6 +8,14 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Tela de conta'));
+    return Center(
+        child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginRegister()),
+                  (Route<dynamic> route) => false);
+            },
+            child: Text('Logout')));
   }
 }

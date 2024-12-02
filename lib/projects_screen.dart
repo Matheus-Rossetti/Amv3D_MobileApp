@@ -172,7 +172,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               centerTitle: false,
               leading: const SizedBox(),
               backgroundColor: Colors.white,
-              title: Text(userName)),
+              title: Text('Bem vindo $userName!')),
           SliverList(
             delegate: SliverChildBuilderDelegate(
                 (builder, index) => Padding(

@@ -55,13 +55,3 @@ Future<String> createUser(String email, String password, String name) async {
 
   return token;
 }
-
-// * testing the calls
-void main() {
-  // getToken('ti@amvali.org.br', 'Amv@1001',);
-  createUser(
-    'teste@gmail.com',
-    'Matheus-16',
-    'teste',
-  );
-}

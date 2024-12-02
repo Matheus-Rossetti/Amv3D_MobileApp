@@ -32,8 +32,8 @@ Future<String> getForNotesScreen(String token) async {
   return request.body;
 }
 
-Future<String> getForAccountScreen(String token) async {
-  return '';
+Future<void> getForAccountScreen(String token) async {
+  return;
 }
 
 Future<void> deleteFirstAutoProject(String token) async {
@@ -57,6 +57,81 @@ Future<void> deleteFirstAutoProject(String token) async {
       },
       body:
           '{"query": "mutation ActiveUserMutations(\$deleteId: String!) { projectMutations { delete(id: \$deleteId) } }", "variables": {"deleteId": "$firstProjectID"}}');
+}
+
+// * Doesn't really work :(
+Future<dynamic> createCommentReply(String reply, String commentId, String token) async {
+
+  await http.post(Uri.parse('$serverIp/graphql'),
+      headers: {
+      "content-type": "application/json",
+      "authorization": "Bearer $token",
+      "cookie": "authn=$token"
+      },
+      body: jsonEncode({
+        'query': '''
+      mutation CreateCommentReply(\$input: CreateCommentReplyInput!) {
+        commentMutations {
+          reply(input: \$input) {
+            id
+            archived
+            rawText
+            text {
+              doc
+              __typename
+            }
+            author {
+              id
+              name
+              avatar
+              __typename
+            }
+            createdAt
+            text {
+              attachments {
+                id
+                fileName
+                fileType
+                fileSize
+                __typename
+              }
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
+      }
+    ''',
+        'variables': {
+          'input': {
+            'content': {
+              'doc': {
+                'type': 'doc',
+                'content': [
+                  {
+                    'type': 'paragraph',
+                    'content': [
+                      {
+                        'type': 'text',
+                        'text': reply,
+                      }
+                    ],
+                  }
+                ],
+              },
+              'blobIds': [],
+            },
+            'threadId': commentId,
+          }
+        }
+      })
+  );
+
+
+
+
+  return getForNotesScreen(token);
 }
 
 // * query tests

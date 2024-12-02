@@ -1,5 +1,4 @@
 import 'package:amvali3d/account_screen.dart';
-import 'package:amvali3d/home_screen.dart';
 import 'package:amvali3d/notes_screen.dart';
 import 'package:amvali3d/projects_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,7 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  int currentPageIndex = 1;
+  int currentPageIndex = 0;
 
   late final List<Widget> pages;
 
@@ -22,7 +21,6 @@ class _NavigationState extends State<Navigation> {
   void initState() {
     super.initState();
     pages = [
-      HomeScreen(token: widget.token),
       ProjectsScreen(token: widget.token),
       NotesScreen(token: widget.token),
       AccountScreen(token: widget.token),
@@ -42,11 +40,6 @@ class _NavigationState extends State<Navigation> {
         backgroundColor: Colors.white,
         height: 70,
         destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Início',
-          ),
           NavigationDestination(
               icon: Icon(Icons.auto_awesome_mosaic_outlined),
               selectedIcon: Icon(Icons.auto_awesome_mosaic),

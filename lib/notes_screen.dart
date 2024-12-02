@@ -25,10 +25,10 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchNotesScreenData();
+    fetchNotesScreenData();
   }
 
-  Future<void> _fetchNotesScreenData() async {
+  Future<void> fetchNotesScreenData() async {
     setState(() {
       _isLoading = true;
     });
@@ -123,7 +123,7 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _fetchNotesScreenData,
+      onRefresh: fetchNotesScreenData,
       child: CustomScrollView(slivers: [
         const SliverAppBar(
             centerTitle: false,
@@ -139,6 +139,7 @@ class _NotesScreenState extends State<NotesScreen> {
                       color: _fetchProjectColor(index),
                       notesInfo: _notesInfo,
                       projectIndex: index,
+                      token: widget.token,
                     ),
                 childCount: _projectsAmmount))
       ]),
@@ -154,7 +155,8 @@ class NotesCard extends StatelessWidget {
       required this.city,
       required this.color,
       required this.notesInfo,
-      required this.projectIndex});
+      required this.projectIndex,
+      required this.token});
 
   final int commentsAmmount;
   final String title;
@@ -162,6 +164,7 @@ class NotesCard extends StatelessWidget {
   final Color color;
   final dynamic notesInfo;
   final int projectIndex;
+  final String token;
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +176,14 @@ class NotesCard extends StatelessWidget {
             PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) {
               return SingleNoteScreen(
-                  title: title,
-                  city: city,
-                  color: color,
-                  commentsAmmount: commentsAmmount,
-                  notesInfo: notesInfo,
-                  projectIndex: projectIndex);
+                title: title,
+                city: city,
+                color: color,
+                commentsAmmount: commentsAmmount,
+                notesInfo: notesInfo,
+                projectIndex: projectIndex,
+                token: token,
+              );
             }, transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
               var fadeAnimation =
@@ -345,7 +350,8 @@ class Node extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
                               _fetchComment(index),
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500),
                             ),
                           )),
                     ),
